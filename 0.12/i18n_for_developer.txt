@@ -1,0 +1,34 @@
+= I18n support workflow for developers =
+Since Trac 0.12 support i18n now, the following steps will make this plugins suppport it.
+And this have no harm to Trac 0.11 or Trac 0.12 with no i18n supporting.
+
+== Initial catalog template file ==
+The first time the plugin generated or each time i18n-ed strings changed,
+generate/regenerate the catalog template file ticketlog/locale/messages.pot
+  {{{
+python setup.py extract_messages
+}}}
+
+== Initial translations for a new language ==
+This will generate catalogs in ticketlog/locale/*_*/LC_MESSAGES/ticketlog.po.
+For example:
+  {{{
+python setup.py init_catalog -f zh_CN
+}}}
+
+== Translate languages ==
+ 1. Translate languages by editing ticketlog/locale/*_*/LC_MESSAGES/ticketlog.po
+
+ 1. Update the various string catalogs
+  {{{
+python setup.py update_catalog
+}}}
+
+== Compile languages ==
+ 1. Generate compiled catalog in ticketlog/locale/*_*/LC_MESSAGES/ticketlog.mo
+  {{{
+python setup.py compile_catalog
+}}}
+
+= See also =
+ * http://trac.edgewall.org/wiki/TracL10N
