@@ -62,6 +62,19 @@ class TicketlogModule(Component):
     def __init__(self):
         locale_dir = resource_filename(__name__, 'locale')
         add_domain(self.env.path, locale_dir)
+        
+        # detect if trac support multi repository
+        sql_string = """
+            SELECT * FROM repository LIMIT 1
+            """
+        db = self.env.get_db_cnx()
+        cursor = db.cursor()
+        try:
+            cursor.execute(sql_string)
+            self.multi_repository = True
+        except:
+            self.multi_repository = False
+        
 
     # IPermissionRequestor methods
 
@@ -151,12 +164,23 @@ class TicketlogModule(Component):
         db = self.env.get_db_cnx()
         cursor = db.cursor()
 
+        sql_string_multi_repos = """
+            SELECT p.value, v.rev, v.author, v.time, v.message
+                FROM revision v
+                LEFT JOIN repository p
+                ON v.repos = p.id AND p.name='name'
+                WHERE message LIKE %s
+            """
         sql_string = """
             SELECT rev, author, time, message
                 FROM revision
                 WHERE message LIKE %s
             """
-        cursor.execute(sql_string, ["%%#%s%%" % ticket_id])
+        if self.multi_repository:
+            cursor.execute(sql_string_multi_repos, ["%%#%s%%" % ticket_id])
+        else:
+            cursor.execute(sql_string, ["%%#%s%%" % ticket_id])
+            
         rows = cursor.fetchall()
 
         log_pattern = self.config.get("ticketlog", "log_pattern", "\s*#%s+\s+.*")
@@ -164,7 +188,19 @@ class TicketlogModule(Component):
 
         for row in rows:
             revision = {}
-            revision["rev"], revision["author"], revision["time"], revision["message"] = row
+            if self.multi_repository:
+                revision["repos"], revision["rev"], revision["author"], revision["time"], revision["message"] = row
+            else:
+                revision["rev"], revision["author"], revision["time"], revision["message"] = row
+                revision["repos"] = None
+            
+            revision["rev"] = revision["rev"].lstrip("0")
+            if revision["repos"]:
+                revision["link"] = "%s/%s" % (revision["rev"], revision["repos"])
+            else:
+                # default repos
+                revision["link"] = revision["rev"]
+            
             if p.match(revision["message"]):
                 revisions.append(revision)
 

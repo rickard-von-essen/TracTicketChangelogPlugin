@@ -34,7 +34,7 @@ $(document).ready(function() {
         // 生成表格
         for (var i=0; i<revisions.length; i++) {
             var revision = revisions[i];
-            var tr_html = "<tr><td><a target='_blank' href='../changeset/"+revision.rev+"'>["+revision.rev+"]</a></td><td>"+revision.author+"</td><td>"+revision.time+"</td><td>"+revision.message+"</td></tr>";
+            var tr_html = "<tr><td><a target='_blank' href='../changeset/"+revision.link+"'>["+revision.rev+"]</a></td><td>"+revision.author+"</td><td>"+revision.time+"</td><td>"+revision.message+"</td></tr>";
             $("#ticket_revisions").append(tr_html);
         }
         
