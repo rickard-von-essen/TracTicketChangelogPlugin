@@ -183,7 +183,7 @@ class TicketlogModule(Component):
             
         rows = cursor.fetchall()
 
-        log_pattern = self.config.get("ticketlog", "log_pattern", "\s*#%s+\s+.*")
+        log_pattern = self.config.get("ticketlog", "log_pattern", "\s*#%s\s+.*")
         p = re.compile(log_pattern % ticket_id, re.M + re.S + re.U)
 
         for row in rows:
