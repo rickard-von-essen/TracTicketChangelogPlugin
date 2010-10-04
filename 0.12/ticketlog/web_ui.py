@@ -37,7 +37,11 @@ from trac.web.api import ITemplateStreamFilter
 
 # third party modules
 from pkg_resources import resource_filename
-import simplejson
+
+try:
+    import simplejson
+except ImportError:
+    import json as simplejson
 
 # import plugins module
 from model import schema, schema_version, TicketlogStore
