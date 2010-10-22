@@ -190,23 +190,30 @@ class TicketlogModule(Component):
         log_pattern = self.config.get("ticketlog", "log_pattern", "\s*#%s\s+.*")
         p = re.compile(log_pattern % ticket_id, re.M + re.S + re.U)
 
+        intermediate = {}
         for row in rows:
-            revision = {}
             if self.multi_repository:
-                revision["repos"], revision["rev"], revision["author"], revision["time"], revision["message"] = row
+                repository_name, rev, author, time, message = row
             else:
-                revision["rev"], revision["author"], revision["time"], revision["message"] = row
-                revision["repos"] = None
-            
-            revision["rev"] = revision["rev"].lstrip("0")
-            if revision["repos"]:
-                revision["link"] = "%s/%s" % (revision["rev"], revision["repos"])
+                rev, author, time, message = row
+
+            if not p.match(message):
+                continue
+
+            if self.multi_repository:
+                link = "%s/%s" % (rev, repository_name)     
+                # Using (rev, author, time, message) as the key 
+                # If branches from the same repo are under Trac system
+                # Only one changeset will be in the ticket changelog
+                intermediate[(rev, author, time, message)] = link
             else:
-                # default repos
-                revision["link"] = revision["rev"]
+                intermediate[(rev, author, time, message)] = rev
             
-            if p.match(revision["message"]):
-                revisions.append(revision)
+        for key in intermediate:
+            revision = {}
+            revision["rev"], revision["author"], revision["time"], revision["message"] = key
+            revision["link"] = intermediate[key]
+            revisions.append(revision)
 
         revisions.sort(key=lambda r: r["time"], reverse=True)
         
