@@ -14,6 +14,7 @@ import time
 import textwrap
 import urllib
 import re
+import cgi
 
 # trac modules
 from trac.core import *
@@ -211,7 +212,8 @@ class TicketlogModule(Component):
             
         for key in intermediate:
             revision = {}
-            revision["rev"], revision["author"], revision["time"], revision["message"] = key
+            revision["rev"], revision["author"], revision["time"], message = key
+            revision["message"] = cgi.escape(message)
             revision["link"] = intermediate[key]
             revisions.append(revision)
 
