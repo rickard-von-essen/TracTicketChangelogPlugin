@@ -189,6 +189,7 @@ class TicketlogModule(Component):
         rows = cursor.fetchall()
 
         log_pattern = self.config.get("ticketlog", "log_pattern", "\s*#%s\s+.*")
+        log_message_maxlength = self.config.get("ticketlog", "log_message_maxlength", None)
         p = re.compile(log_pattern % ticket_id, re.M + re.S + re.U)
 
         intermediate = {}
@@ -213,7 +214,12 @@ class TicketlogModule(Component):
         for key in intermediate:
             revision = {}
             revision["rev"], revision["author"], revision["time"], message = key
-            revision["message"] = cgi.escape(message)
+            if log_message_maxlength and len(message) > log_message_maxlength:
+                # cut message
+                message = message[:log_message_maxlength] + ' (...)'
+            message = cgi.escape(message)
+            revision["message"] = message
+            
             revision["link"] = intermediate[key]
             revisions.append(revision)
 
