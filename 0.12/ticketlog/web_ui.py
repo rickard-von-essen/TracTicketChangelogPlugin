@@ -127,7 +127,8 @@ class TicketlogModule(Component):
     ## ITemplateStreamFilter
 
     def filter_stream(self, req, method, filename, stream, data):
-        if filename == "ticket.html" and req.path_info.startswith("/ticket/"):
+        #if filename == "ticket.html" and req.path_info.startswith("/ticket/"):
+        if req.path_info.startswith("/ticket/"):
             if "TICKETLOG_VIEW" in req.perm:
                 add_stylesheet(req, 'ticketlog/ticketlog.css')
                 add_script(req, 'ticketlog/json2.js')
