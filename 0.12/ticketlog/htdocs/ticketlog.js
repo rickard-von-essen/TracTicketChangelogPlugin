@@ -1,6 +1,6 @@
 $(document).ready(function() {
     // 获取Trac根URL
-    var base_url = $("#search").attr("action").replace(/\/search$/g, "");
+    var base_url = $("#search_form").attr("action").replace(/\/search$/g, "");
 
     var onQueryError = function(msg){
         error_html = "<table class='listing'><tbody><tr style='background-color: yellow;'><td>Error in querying changelogs.</td><tr></tbody></table>";
